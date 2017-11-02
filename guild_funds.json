@@ -1,0 +1,18 @@
+{
+    "total_funds": 1,
+    "date": [
+        {
+            "amount": 55,
+            "reason": "unknown"
+        },
+        {
+            "amount": 0,
+            "reason": "no care"
+        },
+        {
+            "amount": -35,
+            "reason": "Whaaa?"
+        }
+    ]
+} 
+
