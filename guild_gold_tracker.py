@@ -35,6 +35,9 @@ guild_ledger = None
 today = datetime.datetime.now().strftime("%m/%d/%Y")
 guild_funds_file = 'guild_funds.json'
 
+### -------------------------------- ###
+###   Setters and Getters for Ledger ###
+### -------------------------------- ###
 def set_guild_ledger(tmp):
     '''
         Sets the ledger for the tracking script.  Useful for
@@ -76,6 +79,41 @@ def new_entry(amount, reason, date=today):
     guild_ledger["total_funds"] += amount
     return
 
+def remove_entry(date, index, refund=False) :
+    '''  Remove an entry from the ledger
+        If the value should be refunded, set
+        total gold appropriately.  If no more entries
+        in the date, remove it from the ledger
+    '''
+    if not entry_exists(date, index):
+        return False
+    refund_amount = guild_ledger[date][index]["amount"]
+    del guild_ledger[date][index]
+    if len(guild_ledger[date]) == 0:
+        del guild_ledger[date]
+    if refund:
+        guild_ledger["total_funds"] -= refund_amount
+    return True
+
+def remove_all_entries(date, refund=False):
+    if not date_exists(date):
+        return False
+    remove_while = True
+    while remove_while:
+        remove_while = remove_entry(date, 0, refund)
+    return True
+
+def date_exists(date):
+    ''' Return whether this is a valid date within the ledger '''
+    return date in guild_ledger
+
+def entry_exists(date, index):
+    ''' Return whether a specific index can be found at that date '''
+    return date_exists(date) and index < len(guild_ledger[date])
+
+### -------------------------------- ###
+###   Main Settup and Building       ###
+### -------------------------------- ###
 def get_data(file_name):
     content = None
     try:
@@ -105,8 +143,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
 
 #print("Works when imported")
