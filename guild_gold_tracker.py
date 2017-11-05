@@ -191,27 +191,18 @@ def get_data(file_name):
     return content
 
 def main():
-    #print('working')
     global guild_ledger
 
     guild_ledger = get_data(input('Enter a file name (or press enter for default): ') or guild_funds_file)
     if guild_ledger is None:
         print("Shutting down...")
         return
-    else:
-        print("The guild has: %dgp" % get_total_funds())
 
-    pprint(guild_ledger)
-    new_entry(42, "Test X")
-    new_entry(56, "Test Y")
     print(display_full_ledger())
+    
     with open("test_write.txt", "w") as overwrite:
         json.dump(guild_ledger, overwrite)
-
-    #comment out when in production
 
 
 if __name__ == '__main__':
     main()
-
-#print("Works when imported")
