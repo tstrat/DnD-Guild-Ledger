@@ -22,10 +22,12 @@ Important notes:
             "reason"  - reason for expense/income
 
 '''
+
 import json
+import datetime
+
 #might not need pprint later but its good for visualization
 from pprint import pprint
-import datetime
 
 # Useful as a global variable instead of parameter to everything
 # use:  'global guild_ledger' at start of functions
@@ -33,35 +35,45 @@ guild_ledger = None
 today = datetime.datetime.now().strftime("%m/%d/%Y")
 guild_funds_file = 'guild_funds.json'
 
-def get_guild_funds():
+def set_guild_ledger(tmp):
+    '''
+        Sets the ledger for the tracking script.  Useful for
+        test/debugging or for running with a specific script from
+        an alternate program
+    '''
+    global guild_ledger
+    guild_ledger = tmp
+    return
+
+def get_guild_ledger():
+    '''  returns the full ledger dictionary '''
+    return guild_ledger
+
+def get_total_funds():
     ''' Returns the total guild funds amount '''
     return guild_ledger["total_funds"]
 
 ### -------------------------------- ###
 ###   Transactions for guild ledger  ###
 ### -------------------------------- ###
-def new_transaction(amount, reason, date=today):
+def new_entry(amount, reason, date=today):
     ''' Takes the amount and reason as data and
         appends it to the appropriate location
         in the json object
-        Can be adding or subtracting
+
+        Can be positive or negative values
+        If date exists, add to list
+        otherwise:  create new list with this entry at date
     '''
     date_data = { "amount": amount, "reason": reason}
+    
     if date in guild_ledger:
         guild_ledger[date].append(date_data)
     else:
         guild_ledger[date] = [date_data]
+    
+    # calculate into guild fund total
     guild_ledger["total_funds"] += amount
-    return
-
-def new_expense(amount, reason, date):
-    ''' Name abstraction for simplicity '''
-    new_transaction(amount, reason, date)
-    return
-
-def new_earnings(amount, reason, date):
-    ''' Name abstraction for simplicity '''
-    new_transaction(amount, reason, date)
     return
 
 def get_data(file_name):
