@@ -28,3 +28,14 @@ def test_new_date_transactions():
     assert get_total_funds() == 43
     assert len(guild_ledger) == 3
     assert guild_ledger["00/00/0000"][0] == {"amount":42, "reason":"new stuff"}
+
+def test_same_date_transactions():
+    guild_ledger = create_guild_ledger_for_tests(get_funds_1())
+    new_date = "00/00/0000"
+    new_entry(42, "new stuff 1", new_date)
+    new_entry(-37, "new stuff 2", new_date)
+
+    assert get_total_funds() == 6  # 1 + 43 - 37
+
+    assert len(guild_ledger) == 3
+    assert len(guild_ledger[new_date]) == 2
