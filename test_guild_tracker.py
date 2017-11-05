@@ -52,6 +52,7 @@ def test_remove_entry():
     value = remove_entry(date, 0)
 
     assert value
+    assert len(value) == 2 # returned entry
     assert len(guild_ledger[date]) == 1
     assert get_total_funds() == 1  # shoudln't change without refund parameter
     
@@ -65,6 +66,7 @@ def test_remove_all_entries():
     value = remove_entry(date, 0)
 
     assert value
+    assert len(value) == 2 # returned entry
     assert date not in guild_ledger
     assert get_total_funds() == 1  # shoudln't change without refund parameter
 
@@ -95,6 +97,7 @@ def test_remove_all_with_just_date():
     assert not value
     value = remove_all_entries(date)
     assert value
+    assert len(value) == 2 # list of returned values.
     assert not date_exists(date)
     value = remove_entry(date,0)
     assert not value

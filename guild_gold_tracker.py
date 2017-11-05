@@ -84,11 +84,13 @@ def remove_entry(date, index, refund=False) :
         If the value should be refunded, set
         total gold appropriately.  If no more entries
         in the date, remove it from the ledger
+
+        returns entry that was removed or False if nothing removed
     '''
     if not entry_exists(date, index):   # entry does not exist
         return False
 
-    refund_amount = guild_ledger[date][index]["amount"] # used in refund
+    entry = guild_ledger[date][index] # get the index from the ledger
     
     #   Remove entry. If last entry in date, remove date
     del guild_ledger[date][index]
@@ -98,19 +100,26 @@ def remove_entry(date, index, refund=False) :
     # If refund is selected, take the amount and remove it from the total gold counter
     # If it was an addition subtract it, subtraction add missing value back to total
     if refund:
-        guild_ledger["total_funds"] -= refund_amount
+        guild_ledger["total_funds"] -= entry["amount"] # used in refund
 
-    return True
+    return entry  # return entry in case you need to un-do deletion
 
 def remove_all_entries(date, refund=False):
+    '''  Removes all entries by date 
+         Returns a list of all entries removed, Empty list if nothing was removed
+    '''
     if not date_exists(date):
         return False
 
     # Keep removing until no longer possible
-    remove_while = True
-    while remove_while:
-        remove_while = remove_entry(date, 0, refund) # removes first entry if it exists
-    return True
+    removed_entries = []
+    removed = True
+    while removed:
+        removed = remove_entry(date, 0, refund) # removes first entry if it exists
+        if removed:
+            removed_entries.append(removed)
+
+    return removed_entries  # return list of all removed entries in case of deletion un-do
 
 def date_exists(date):
     ''' Return whether this is a valid date within the ledger '''
