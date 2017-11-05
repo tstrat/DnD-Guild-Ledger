@@ -11,6 +11,9 @@ def create_guild_ledger_for_tests(new_ledger):
 def get_funds_1():
     return { "total_funds": 1, "09/01/1991":[ {"amount": 1, "reason": "birthday"}] }
 
+def get_funds_2():
+    return { "total_funds": 1, "09/01/1991":[ {"amount": 1, "reason": "birthday"}, {"amount": 2, "reason": "presents"}] }
+
 def test_guild_fund_access():
     guild_ledger = create_guild_ledger_for_tests(get_funds_1())
     assert get_total_funds() == 1
@@ -39,3 +42,64 @@ def test_same_date_transactions():
 
     assert len(guild_ledger) == 3
     assert len(guild_ledger[new_date]) == 2
+
+def test_remove_entry():
+    guild_ledger = create_guild_ledger_for_tests(get_funds_2())
+    date = "09/01/1991"
+    assert guild_ledger[date] is not None
+    assert len(guild_ledger[date]) == 2
+
+    value = remove_entry(date, 0)
+
+    assert value
+    assert len(value) == 2 # returned entry
+    assert len(guild_ledger[date]) == 1
+    assert get_total_funds() == 1  # shoudln't change without refund parameter
+    
+def test_remove_all_entries():
+    guild_ledger = create_guild_ledger_for_tests(get_funds_2())
+    date = "09/01/1991"
+    assert guild_ledger[date] is not None
+    assert len(guild_ledger[date]) == 2
+
+    value = remove_entry(date, 0)
+    value = remove_entry(date, 0)
+
+    assert value
+    assert len(value) == 2 # returned entry
+    assert date not in guild_ledger
+    assert get_total_funds() == 1  # shoudln't change without refund parameter
+
+    value = remove_entry(date, 0)
+    assert not value  # no more date to remove
+
+def test_remove_with_refund():
+    guild_ledger = create_guild_ledger_for_tests(get_funds_2())
+    date = "09/01/1991"
+    assert guild_ledger[date] is not None
+    assert get_total_funds() == 1
+
+    value = remove_entry(date, 0, True)
+
+    assert value
+    assert get_total_funds() == 0 # was 1 but entry amount was 1 so refund removes from total
+
+
+    value = remove_entry(date, 0, True)
+
+    assert value
+    assert get_total_funds() == -2 # was 0 but entry amount was 2 so refund removes from total
+
+def test_remove_all_with_just_date():
+    guild_ledger = create_guild_ledger_for_tests(get_funds_2())
+    date = "09/01/1991"
+    value = remove_all_entries("no_date")
+    assert not value
+    value = remove_all_entries(date)
+    assert value
+    assert len(value) == 2 # list of returned values.
+    assert not date_exists(date)
+    value = remove_entry(date,0)
+    assert not value
+
+

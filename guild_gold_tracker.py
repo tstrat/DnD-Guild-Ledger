@@ -35,6 +35,9 @@ guild_ledger = None
 today = datetime.datetime.now().strftime("%m/%d/%Y")
 guild_funds_file = 'guild_funds.json'
 
+### -------------------------------- ###
+###   Setters and Getters for Ledger ###
+### -------------------------------- ###
 def set_guild_ledger(tmp):
     '''
         Sets the ledger for the tracking script.  Useful for
@@ -76,6 +79,59 @@ def new_entry(amount, reason, date=today):
     guild_ledger["total_funds"] += amount
     return
 
+def remove_entry(date, index, refund=False) :
+    '''  Remove an entry from the ledger
+        If the value should be refunded, set
+        total gold appropriately.  If no more entries
+        in the date, remove it from the ledger
+
+        returns entry that was removed or False if nothing removed
+    '''
+    if not entry_exists(date, index):   # entry does not exist
+        return False
+
+    entry = guild_ledger[date][index] # get the index from the ledger
+    
+    #   Remove entry. If last entry in date, remove date
+    del guild_ledger[date][index]
+    if len(guild_ledger[date]) == 0:
+        del guild_ledger[date]
+    
+    # If refund is selected, take the amount and remove it from the total gold counter
+    # If it was an addition subtract it, subtraction add missing value back to total
+    if refund:
+        guild_ledger["total_funds"] -= entry["amount"] # used in refund
+
+    return entry  # return entry in case you need to un-do deletion
+
+def remove_all_entries(date, refund=False):
+    '''  Removes all entries by date 
+         Returns a list of all entries removed, Empty list if nothing was removed
+    '''
+    if not date_exists(date):
+        return False
+
+    # Keep removing until no longer possible
+    removed_entries = []
+    removed = True
+    while removed:
+        removed = remove_entry(date, 0, refund) # removes first entry if it exists
+        if removed:
+            removed_entries.append(removed)
+
+    return removed_entries  # return list of all removed entries in case of deletion un-do
+
+def date_exists(date):
+    ''' Return whether this is a valid date within the ledger '''
+    return date in guild_ledger
+
+def entry_exists(date, index):
+    ''' Return whether a specific index can be found at that date '''
+    return date_exists(date) and index < len(guild_ledger[date])
+
+### -------------------------------- ###
+###   Main Settup and Building       ###
+### -------------------------------- ###
 def get_data(file_name):
     content = None
     try:
@@ -105,8 +161,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
 
 #print("Works when imported")
