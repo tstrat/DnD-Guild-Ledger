@@ -129,6 +129,55 @@ def entry_exists(date, index):
     ''' Return whether a specific index can be found at that date '''
     return date_exists(date) and index < len(guild_ledger[date])
 
+
+### -------------------------------- ###
+###   Entry to Text Display          ###
+### -------------------------------- ###
+def display_total_funds():
+    return "\tTotal Guild Funds: " + str(get_total_funds())
+
+def display_single_entry(date, index):
+    '''
+        Display for single entry in ledger
+        ----------------------------------
+           Amount  |   $$$$$$
+           Reason  |   "Reason for entry"
+        ----------------------------------
+    '''
+    if not entry_exists(date, index):
+        return "|\tInvalid: Entry could not be found\t|"
+    entry = guild_ledger[date][index]
+    tab = 10
+    amount = "Amount |".ljust(tab) + str(entry["amount"])
+    reason = "Reason |".ljust(tab) + entry["reason"]
+    divider = ""
+    for i in reason:
+        divider += "-"
+
+    return divider + "\n" + amount + "\n" + reason + "\n"
+
+def display_entries_for_date(date):
+    '''
+        Displays all single entries within the date requested
+    '''
+    if not date_exists(date):
+        return ""
+    return_str = "\"" + date + "\"\n"
+    for i in range(len(guild_ledger[date])):
+        return_str += display_single_entry(date, i)
+
+    return return_str
+
+def display_full_ledger():
+    '''
+        Displays the full ledger in a nice easy-readable way
+    '''
+    return_str = ""
+    for date in guild_ledger:
+        if date != "total_funds":
+            return_str += display_entries_for_date(date)
+    return return_str + "\n" + display_total_funds()
+
 ### -------------------------------- ###
 ###   Main Settup and Building       ###
 ### -------------------------------- ###
@@ -150,9 +199,12 @@ def main():
         print("Shutting down...")
         return
     else:
-        print("The guild has: %dgp" % get_guild_funds())
+        print("The guild has: %dgp" % get_total_funds())
 
     pprint(guild_ledger)
+    new_entry(42, "Test X")
+    new_entry(56, "Test Y")
+    print(display_full_ledger())
     with open("test_write.txt", "w") as overwrite:
         json.dump(guild_ledger, overwrite)
 
