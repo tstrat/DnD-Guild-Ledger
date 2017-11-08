@@ -1,26 +1,5 @@
 ''' 
 Program:  To keep logs of gold spending for our DnD campaign
-
-Basic goals:
-	Read from file, get total current gold
-	Add to/sub from it with specific data
-		Write in to file tracking for history
-	Use prompts to access it
-	Gain values like "How much is party funds how much personal"
-
-Stretch goal:
-    modify entries
-    add compendium of items and values to view and purchase
-        includes viewing for personal gold expenses
-    when rewards are added, display breakdown of loss, guild, and personal amounts
-
-Important notes:
-    keywords in json:
-        "total_funds" - the total of all the guild funds
-        "dd/mm/yy" - format for date of entry
-            "amount" - amount spent/gained
-            "reason"  - reason for expense/income
-
 '''
 
 import json
